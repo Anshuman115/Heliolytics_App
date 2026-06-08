@@ -21,11 +21,15 @@ Goal: fetch and persist every raw binary blob the strap sends. No parsing yet.
 │  lib/core/ble/                                         │
 │    scanner.dart         → find the strap               │
 │    connector.dart       → GATT connect                 │
-│    device_handshake.dart       → ECDH + AES auth              │
-│    type_sync_engine.dart→ request each type code       │
-│    sync_orchestrator.dart → orchestrate full session  │
-│    gatt_framing.dart     → chunked protocol framing     │
-│    parsers/             → Phase 2 stubs (one per type) │
+│    device_handshake.dart  → ECDH + AES auth            │
+│    type_sync_engine.dart  → request each type code   │
+│    band_link.dart         → GATT session + fetch     │
+│    sync_orchestrator.dart → orchestrate full session │
+│    gatt_framing.dart      → chunked protocol framing │
+│    parsers/               → byte decoders (Phase 2)  │
+│                                                        │
+│  lib/features/health_data/ → parse pipeline (Ph. 2)  │
+│  lib/features/cloud_sync/  → API upload stub (Ph. 3) │
 │                                                        │
 │  lib/core/constants.dart                               │
 │    knownTypeCodes       → Gadgetbridge-confirmed codes │
@@ -120,6 +124,8 @@ concurrent requests. Full 30-day fetch takes ~3 minutes.
 - [ ] Add `0x39`, `0x55`, `0x57` to `dumpTypeCodes` in constants.dart
 
 ### Phase 2: Parsing
+- [x] Scaffold `lib/features/health_data/` (repository + dispatch)
+- [ ] Wire parse pipeline after each fetch session
 - [ ] Implement parsers using verified layouts in `lib/core/ble/parsers/`
 - [ ] 0x48 sleep parser (594 B/session layout confirmed)
 - [ ] 0x01 activity parser (round-relative timestamp alignment needed)
@@ -128,6 +134,7 @@ concurrent requests. Full 30-day fetch takes ~3 minutes.
 - [ ] 0x13 stress parser (1 byte per minute, skip 0xFF)
 
 ### Phase 3: Storage
+- [x] Scaffold `lib/features/cloud_sync/` (repository stub)
 - [ ] TimescaleDB schema (design in backend repo)
 - [ ] ETL pipeline: .bin → parsed → hypertables
 - [ ] Deduplication rules (sleep: dedup on session_start; filter score=0 records)
