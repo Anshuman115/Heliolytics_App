@@ -63,11 +63,16 @@ lib/
 | Path | Role |
 |------|------|
 | `providers/sync_orchestrator.dart` | BLE session state machine + auto-connect |
-| `providers/live_health_provider.dart` | Cloud metrics snapshot (GET APIs) |
-| `services/ble/sync_orchestrator_*.dart` | Fetch, upload, incremental window logic |
+| `providers/live_health_provider.dart` | Core daily snapshot + lazy `detailMetricsProvider` (per-minute series/HR/temp) |
+| `services/ble/sync_window*.dart` | Server-driven per-type fetch windows (coverage-based) |
+| `services/ble/sync_fetcher` / `sync_committer` | BLE → payload, payload → cloud upload |
 | `services/metrics_api_client.dart` | Days, series, sleep, workouts, coverage |
 | `services/cloud_sync_repository_impl.dart` | Multipart ingest upload |
 | `router/app_router.dart` | Routes, auth guard |
+
+**Server-side (sibling `Heliolytics` repo):** per-type binary parsers, idempotent ingest
+(per-minute `step_samples` → recomputed daily totals), and the recovery score
+(device `0x39` when present, else computed from HRV/RHR/sleep/respiratory baseline).
 
 ## Navigation (GoRouter)
 
