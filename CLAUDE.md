@@ -47,9 +47,8 @@ those locally; never cite them from a published file.
 - No file longer than 150 lines.
 - No class with more than one reason to change.
 
-> Existing violations of the 150-line cap are known (`band_link.dart` 432,
-> `health_monitor_screen.dart` 338, and ~18 others). Don't add new ones; split when
-> you touch one.
+> Known debt: 28 files still exceed the cap, worst first `band_link.dart` (432) and
+> `health_monitor_screen.dart` (338). Don't add new ones; split when you touch one.
 
 ## Naming
 - Files: snake_case (home_screen.dart, live_health_provider.dart)
