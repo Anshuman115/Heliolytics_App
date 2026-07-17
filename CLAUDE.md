@@ -44,7 +44,13 @@ those locally; never cite them from a published file.
 - lib/design_system/ → shared tokens + reusable components
 - Flow: screens → providers → services → models
 - One file, one responsibility. If a file handles more than one concern, split it.
-- No file longer than 150 lines.
+- No file longer than 150 lines — as a guideline, not an absolute. Split
+  when a clean split exists (a cohesive chunk of UI/logic that already has
+  its own name and reason to change). Don't split just to hit the number if
+  it means awkward indirection, param-threading through an artificial
+  boundary, or a new file that only ever has one caller and no real
+  identity of its own — that trades a length violation for a worse
+  complexity violation.
 - No class with more than one reason to change.
 
 > Known debt: 28 files still exceed the cap, worst first `band_link.dart` (432) and
