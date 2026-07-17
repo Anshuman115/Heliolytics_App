@@ -1,4 +1,4 @@
-# CLAUDE.md — Heliolytics_App (Flutter)
+# AGENTS.md — Heliolytics_App (Flutter)
 
 ## Project
 Flutter app for Heliolytics. Dart + Riverpod + flutter_secure_storage + BLE.
@@ -104,7 +104,7 @@ those locally; never cite them from a published file.
 
 ## Published vs. local-only
 
-This repo is public. `CLAUDE.md` and `docs/features/` **are published** — write them
+This repo is public. `AGENTS.md` and `docs/features/` **are published** — write them
 for an outside reader, not just for yourself.
 
 Local-only (in `.gitignore`, on disk for personal reference only):
