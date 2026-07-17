@@ -67,7 +67,10 @@ those locally; never cite them from a published file.
 - No build() longer than 40 lines
 - Every screen is a ConsumerWidget or ConsumerStatefulWidget
 - No direct API calls from UI layer, always through provider → service
-- Sync to backend only — no on-device health-data persistence
+- Sync to backend only — no on-device persistence of raw or self-parsed
+  health data. Caching the server's already-parsed responses for
+  offline/fast display (see docs/features — sync cache) is allowed; the
+  phone still never parses health data itself.
 - No print() — use AppLogger.instance.log in lib/utils/app_logger.dart
 - No magic numbers — all literals in lib/constants/constants.dart
 - Spacing: HelioSpacing only (design_system/tokens/helio_spacing.dart)
