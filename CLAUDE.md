@@ -25,7 +25,7 @@ the parsed result back over HTTP.
 | [docs/features/home-and-rings.md](docs/features/home-and-rings.md) | Shell, tabs, rings, the two-tier metrics split |
 | [docs/features/sleep.md](docs/features/sleep.md) | Hypnogram, clock-axis consistency chart |
 | [docs/features/activity.md](docs/features/activity.md) | Workouts, auto sessions, HR zones |
-| [docs/features/settings-and-device.md](docs/features/settings-and-device.md) | Auth key, pairing, cloud API, signing |
+| [docs/features/settings-and-device.md](docs/features/settings-and-device.md) | Onboarding, device setup wizard, Settings structure, auth key, pairing, cloud API, signing, app logs |
 
 `docs/features/` is published. The rest of `docs/` — `protocol/` (byte layouts, type
 codes, `roundStart`, paging), `validation/` (offline replay, accuracy), and
@@ -57,9 +57,9 @@ those locally; never cite them from a published file.
 > `health_monitor_screen.dart` (338). Don't add new ones; split when you touch one.
 
 ## Naming
-- Files: snake_case (home_screen.dart, live_health_provider.dart)
-- Classes: PascalCase (HomeScreen, LiveHealthNotifier)
-- Providers: camelCase + Provider suffix (liveHealthProvider)
+- Files: snake_case (home_screen.dart, day_bundle_provider.dart)
+- Classes: PascalCase (HomeScreen, DailyBundleCacheStorage)
+- Providers: camelCase + Provider suffix (dayBundleProvider)
 - Variables: camelCase, descriptive (hrvRmssdMs not value)
 
 ## Riverpod Rules
@@ -90,8 +90,10 @@ those locally; never cite them from a published file.
 - Never call BLE methods directly from UI
 - One parser file per data type code in lib/services/ble/parsers/
   (fetch framing only — health parsing is the server's job)
-- `BandLinkPort` is the test seam. Change its signature and the mocks in `test/`
-  must follow, or `flutter analyze` fails with `invalid_override`
+- `BandLinkPort` is the intended test seam for BLE code. If `flutter_tools`
+  cannot resolve test-runner URIs because this machine's volume path contains
+  an apostrophe, copy the current working tree to a temporary path without
+  special characters and run the tests there.
 - One BLE link, shared. `BandSessionProvider` is the mutex — band alerts mode
   blocks sync and live HR by design
 
@@ -134,8 +136,8 @@ Local-only (in `.gitignore`, on disk for personal reference only):
 `docs/protocol/` is a broken link for everyone who clones the repo — describe the
 thing in prose instead.
 
-**`test/` is tracked and public** — 4 files under `test/core/` and
-`test/features/`. Treat test edits as real commits.
+**`test/` is tracked and public.** Test edits are real commits like anything
+else. Use the isolated-path fallback described under BLE Rules when needed.
 
 ## Attribution and legal hygiene
 - No third-party project names in code comments, commit messages, or tracked markdown

@@ -125,8 +125,9 @@ Local-only (in `.gitignore`, on disk for personal reference only):
 `docs/protocol/` is a broken link for everyone who clones the repo — describe the
 thing in prose instead.
 
-**`test/` is tracked and public** — 4 files under `test/core/` and
-`test/features/`. Treat test edits as real commits.
+**`test/` is tracked and public.** Treat test edits as real commits. If the
+workspace path prevents Flutter from resolving test-runner URIs, copy the
+working tree to a temporary path without special characters and run tests there.
 
 ## Attribution and legal hygiene
 - No third-party project names in code comments, commit messages, or tracked markdown
