@@ -1,4 +1,4 @@
-# AGENTS.md — Heliolytics_App (Flutter)
+# docs/local/AGENTS.md : Heliolytics_App (Flutter)
 
 ## Project
 Flutter app for Heliolytics. Dart + Riverpod + flutter_secure_storage + BLE.
@@ -8,28 +8,29 @@ Part of a 3-repo system, cloned as **siblings** under one parent:
 
 | Repo | Role |
 |------|------|
-| `Heliolytics_App` (this) | Flutter — BLE sync, uploads raw session bytes |
-| `Heliolytics` | Go API — parses, stores, serves metrics. The hub |
-| `Heliolytics_Web` | Next.js dashboard — reads metrics |
+| `Heliolytics_App` (this) | Flutter : BLE sync, uploads raw session bytes |
+| `Heliolytics` | Go API : parses, stores, serves metrics. The hub |
+| `Heliolytics_Web` | Next.js dashboard : reads metrics |
 
-**The core split: the phone never parses health data and never persists it.** It
-fetches raw bytes off the strap and uploads them. The server parses. The app reads
-the parsed result back over HTTP.
+**The core split: Go parses historical health blobs and owns canonical history.**
+The app uploads raw bytes and reads parsed results over HTTP. It caches closed-day
+server responses locally. Session metadata, settings, logs and diagnostic dumps
+also use on-device storage; none is a durable server sync bookmark.
 
-## Docs — read before changing a feature
+## Docs : read before changing a feature
 
 | Doc | When |
 |-----|------|
 | [docs/features/ble-sync.md](docs/features/ble-sync.md) | Sync, coverage, type fetch, upload |
 | [docs/features/band-alerts.md](docs/features/band-alerts.md) | Call/app forwarding, vibration patterns |
 | [docs/features/home-and-rings.md](docs/features/home-and-rings.md) | Shell, tabs, rings, the two-tier metrics split |
-| [docs/features/sleep.md](docs/features/sleep.md) | Hypnogram, clock-axis consistency chart |
+| [docs/features/sleep.md](docs/features/sleep.md) | Sleep detail, stage timeline and naps; no registered Sleep tab |
 | [docs/features/activity.md](docs/features/activity.md) | Workouts, auto sessions, HR zones |
 | [docs/features/settings-and-device.md](docs/features/settings-and-device.md) | Auth key, pairing, cloud API, signing |
 
-`docs/features/` is published. The rest of `docs/` — `protocol/` (byte layouts, type
+`docs/features/` is published. The rest of `docs/` : `protocol/` (byte layouts, type
 codes, `roundStart`, paging), `validation/` (offline replay, accuracy), and
-`decisions/` (why it's built this way) — is **local-only and gitignored**. Consult
+`decisions/` (why it's built this way) : is **local-only and gitignored**. Consult
 those locally; never cite them from a published file.
 
 ## Structure Rules (layer-first)
@@ -47,18 +48,18 @@ those locally; never cite them from a published file.
 - No file longer than 150 lines.
 - No class with more than one reason to change.
 
-> Known debt: 28 files still exceed the cap, worst first `band_link.dart` (432) and
-> `health_monitor_screen.dart` (338). Don't add new ones; split when you touch one.
+> Existing files exceed the size limit. Check the current source rather than
+> relying on a fixed file-count snapshot. Split touched files along real responsibilities.
 
 ## Naming
-- Files: snake_case (home_screen.dart, live_health_provider.dart)
+- Files: snake_case (home_screen.dart, day_bundle_provider.dart)
 - Classes: PascalCase (HomeScreen, LiveHealthNotifier)
-- Providers: camelCase + Provider suffix (liveHealthProvider)
+- Providers: camelCase + Provider suffix (dayBundleProvider)
 - Variables: camelCase, descriptive (hrvRmssdMs not value)
 
 ## Riverpod Rules
 - Providers live in lib/providers/
-- No logic inside build() — move to provider
+- No logic inside build() : move to provider
 - AsyncNotifier for all async state, never FutureBuilder
 - ref.watch in build; ref.read in callbacks
 
@@ -67,9 +68,10 @@ those locally; never cite them from a published file.
 - No build() longer than 40 lines
 - Every screen is a ConsumerWidget or ConsumerStatefulWidget
 - No direct API calls from UI layer, always through provider → service
-- Sync to backend only — no on-device health-data persistence
-- No print() — use AppLogger.instance.log in lib/utils/app_logger.dart
-- No magic numbers — all literals in lib/constants/constants.dart
+- Sync to backend only. Parsed server-response caches are allowed; the server
+  remains authoritative. Do not add on-device historical health parsing
+- No print() : use AppLogger.instance.log in lib/utils/app_logger.dart
+- No magic numbers : all literals in lib/constants/constants.dart
 - Spacing: HelioSpacing only (design_system/tokens/helio_spacing.dart)
 - Metric colors: HelioMetricColors (design_system/tokens/helio_metric_colors.dart)
 
@@ -80,31 +82,31 @@ those locally; never cite them from a published file.
   encrypted_endpoint, sync_page_anchor
 - Never call BLE methods directly from UI
 - One parser file per data type code in lib/services/ble/parsers/
-  (fetch framing only — health parsing is the server's job)
+  (fetch framing only : health parsing is the server's job)
 - `BandLinkPort` is the test seam. Change its signature and the mocks in `test/`
   must follow, or `flutter analyze` fails with `invalid_override`
-- One BLE link, shared. `BandSessionProvider` is the mutex — band alerts mode
+- One BLE link, shared. `BandSessionProvider` is the mutex : band alerts mode
   blocks sync and live HR by design
 
-## Cross-repo invariants — break these and another repo breaks
+## Cross-repo invariants : break these and another repo breaks
 - **`X-Heliolytics-Token` format** (`ts.nonce.sig`, HMAC-SHA256 over `"ts:nonce"`)
   must stay byte-identical across `lib/services/network/heliolytics_token.dart`,
   Go `internal/auth/signing.go`, and web `lib/api/signing.ts`
-- **The server owns sync state.** No phone-side bookmarks — ask `/metrics/coverage`
+- **The server owns sync state.** No phone-side bookmarks : ask `/metrics/coverage`
 - Per-page `roundSegments` anchors must be uploaded; server parsers depend on them
 
 ## Verification
-- `flutter analyze` is the authoritative compile check — must be **0 errors**
+- `flutter analyze` is the authoritative compile check : must be **0 errors**
 - An APK build needs several GB free
 
 ## Git
-- Commits: type(scope): message — e.g., feat(ble): add workout parser
+- Commits: type(scope): message : e.g., feat(ble): add workout parser
 - Types: feat, fix, chore, refactor, test, docs
 - One logical change per commit. No WIP commits on main.
 
 ## Published vs. local-only
 
-This repo is public. `AGENTS.md` and `docs/features/` **are published** — write them
+This repo is public. `docs/local/AGENTS.md` and `docs/features/` **are published** : write them
 for an outside reader, not just for yourself.
 
 Local-only (in `.gitignore`, on disk for personal reference only):
@@ -122,7 +124,7 @@ Local-only (in `.gitignore`, on disk for personal reference only):
 | `reference_parsed_v*/` | Parsed reference output |
 
 **Never cite a local-only path from a published file.** A published doc that links to
-`docs/protocol/` is a broken link for everyone who clones the repo — describe the
+`docs/protocol/` is a broken link for everyone who clones the repo : describe the
 thing in prose instead.
 
 **`test/` is tracked and public.** Treat test edits as real commits. If the
